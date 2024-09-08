@@ -5,7 +5,6 @@ from config_llm import LLM
 from prompts import PROMPTS
 import click
 
-
 @click.command()
 @click.argument("prompt", type=str)
 @click.option("--system-prompt", default="default", type=click.Choice(PROMPTS.keys()), help="System prompt to use")

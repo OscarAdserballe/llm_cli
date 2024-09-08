@@ -13,14 +13,6 @@ filepaths = {
 PROMPTS = {
     "default" : """
 Answer questions concisely. Format as raw text, and be cognizant that output will be displayed in a shell, so no HTML, newlines etc.
-""",
-
-    "rag" : """
-You'll be provided a list of sources, and you'll be asked to write a response to a prompt based on the sources.
-
-Please answer as extensively as possible. Always format as RAW TEXT, and be cognizant that output will be displayed in a shell, so no HTML, Markdown formatting, newlines etc.
-
-ALWAYS ANSWER THE QUESTION FULLY. Cite sources whenever it's possible.
 """
 }
 

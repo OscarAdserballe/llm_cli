@@ -82,10 +82,9 @@ class Router(LLM):
 
     def route_query(self, query: str):
         response = super().query(query)
-        print(response)
         try:
             query_type = json.loads(response).get("query_type")
         except:
             query_type = json.loads(response.replace('```json', '').replace('```', '')).get("query_type")
-        print(f"Query type: {query_type}")
+        print(f"Router identified following system prompt: {query_type}")
         return query_type

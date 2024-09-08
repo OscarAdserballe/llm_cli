@@ -5,17 +5,14 @@ import os
 from config_llm import LLM
 from prompts import PROMPTS
 import time
-import colored
-import logging
-import datetime
 from config_logger import get_logger
 from config_llm import LLM
-import click
+
 
 class RAG(LLM):
     def __init__(self,
                  folder_name,
-                system_prompt=PROMPTS["rag"],
+                system_prompt=PROMPTS["default"],
                 model_name="gemini-1.5-flash"
             ):
         super().__init__(system_prompt=system_prompt, model_name=model_name)
