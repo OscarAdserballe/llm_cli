@@ -1,4 +1,4 @@
-# LLM-based CLI - Retrieval Augmented Generation for Your Command Line
+# LLM-based CLI - Retrieval Augmented Generation from Your Command Line
 
 This repository contains a Python CLI tool designed for basic LLM tasks along with retrieval augmented generation (RAG) tasks leveraging Google's Gemini AI models to answer questions. Currently default model called is always gemini-1.5-flash.
 
