@@ -1,5 +1,9 @@
 # Advanced AI Programming Task Guidance
 
+
+## General guidelines
+* Whenever developing unit tests in Python, please use the pytest framework.
+
 ## Variable: BreakDownTask
 
 ### Instructions:

@@ -2,20 +2,32 @@
 from tika import parser 
 import sys
 import os
-from config_llm import LLM
-from prompts import PROMPTS
 import time
-from config_logger import get_logger
-from config_llm import LLM
 
+from llm_utils.models.llm import LLM
+from llm_utils.prompts.prompts import PROMPTS
+from llm_utils.parameters import CONFIG\
+
+from config_logger import get_logger
 
 class RAG(LLM):
     def __init__(self,
                  folder_name,
                 system_prompt=PROMPTS["default"],
-                model_name="gemini-1.5-flash"
+                route=True,
+                model_name=CONFIG['base_model'],
+                use_chat_history=True,
+                is_recursive=False,
+                startswith=None
             ):
-        super().__init__(system_prompt=system_prompt, model_name=model_name)
+        super().__init__(
+            system_prompt=system_prompt,
+            model_name=model_name,
+            route=route,
+            use_chat_history=use_chat_history
+        )
+        self.is_recursive = is_recursive
+        self.startswith = startswith
         self.filepaths = self.get_filepaths(folder_name)
         self.context = self.retrieve_context(self.filepaths)
         self.logger = get_logger(__name__)
@@ -62,11 +74,19 @@ class RAG(LLM):
             self.logger.error(f"Failed parsing {file_path}. OCR'ing it\n\n\nError: {e}")
             return self.fallback_parse_file(file_path)
 
-    def validate_version_of_file(self, file_path):
-        """Checks if a .txt file exists for a given file_path."""
+    def validate_file(self, file_path):
+        """Checks if a .txt file exists for a given file_path and is not illegal type."""
+        illegal_extensions = [
+            ".pyc", ".img", ".jpg", ".jpeg", ".png", ".gif", ".log", ".csv",
+            ".zip", ".tar", ".gz", ".tgz", ".csv", ".xls", ".xlsx",
+        ]
         file_name, extension = os.path.splitext(file_path)
-        if os.path.exists(f"{file_name}.txt") and extension != ".txt":
+        if os.path.exists(f"{file_name}.txt") \
+            and extension != ".txt" \
+            and extension not in illegal_extensions:
+
             return False
+        
         return True
 
     def retrieve_context(self, files):
@@ -76,21 +96,23 @@ class RAG(LLM):
         else:
             return self.parse_file(files)
 
-    def get_filepaths(self, folder_name, startswith=None):
+    def get_filepaths(self, folder_name):
         """Gets file paths from a folder, optionally filtering by starting string."""
-        if startswith:
-            for filename in os.listdir(folder_name):
-                if filename.startswith(startswith) and self.validate_version_of_file(os.path.join(folder_name, filename)):
-                    return os.path.join(folder_name, filename)
-        else:
-            return [os.path.join(folder_name, filename)
-                    for filename in os.listdir(folder_name)
-                    if os.path.isfile(os.path.join(folder_name, filename))
-                    and self.validate_version_of_file(os.path.join(folder_name, filename))]
+        file_paths = []
+        for item in os.listdir(folder_name):
+            item_path = os.path.join(folder_name, item)
+            if os.path.isfile(item_path) and self.validate_file(item_path):
+                if self.startswith and item.startswith(self.startswith):
+                    file_paths.append(item_path)
+                elif not self.startswith:
+                    file_paths.append(item_path)
+            elif os.path.isdir(item_path) and self.is_recursive:
+                file_paths.extend(self.get_filepaths(item_path))
+        return file_paths
 
     def query(self, query):
         """Queries the LLM with a prompt and optional context."""
-        self.logger.info(f"Query: {query}\n\n\nContext: {self.context}\n\n\n\n\n\n")
+        self.logger.info(f"Files used: {self.filepaths}, Query: {query}")
         response = super().query(query=query, context=self.context)
         return response
 

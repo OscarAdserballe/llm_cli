@@ -1,13 +1,17 @@
 import logging
 import datetime
 
+LOG_DELIMITER = "####################"
+LOG_FILE = f"/Users/oscarjuliusadserballe/cli_scripts/logs/llm_{datetime.date.today()}.log"
+
 def get_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
     # Create file handler and formatter
+
     file_handler = logging.FileHandler(
-        f"/Users/oscarjuliusadserballe/cli_scripts/logs/llm_{datetime.date.today()}.log",
+        LOG_FILE,
         mode='a'
     )
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
